@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:js' as js;
+import 'dart:js_interop';
 import 'package:flutter/widgets.dart';
 import 'package:tonic/tonic.dart' as tonic;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -15,7 +15,7 @@ class FlutterMidiPlugin extends FlutterMidiPlatform {
     final MethodChannel channel = MethodChannel(
       'flutter_midi',
       const StandardMethodCodec(),
-      registrar.messenger,
+      registrar,
     );
     channel.setMethodCallHandler(instance.handleMethodCall);
   }
@@ -26,14 +26,13 @@ class FlutterMidiPlugin extends FlutterMidiPlatform {
         final int midi = call.arguments['note'];
         String _note = tonic.Pitch.fromMidiNumber(midi).toString();
         _note = _note.replaceAll('♭', 'b').replaceAll('♯', '#');
-        js.context.callMethod('playNote', [_note]);
+        (globalContext as dynamic).playNote(_note);
         return 'Result: $_note';
       case 'stop_midi_note':
         final int midi = call.arguments['note'];
         String _note = tonic.Pitch.fromMidiNumber(midi).toString();
         _note = _note.replaceAll('♭', 'b').replaceAll('♯', '#');
-        // print('Midi -> $midi/$_note');
-        js.context.callMethod('stopNote');
+        (globalContext as dynamic).stopNote();
         return 'Result: $_note';
       default:
     }
